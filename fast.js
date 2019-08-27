@@ -12,12 +12,12 @@ var list = [],
 
 function generateDummyList(itemCount) {
   if (!itemCount) return;
-    n_pages = Math.ceil(itemCount / maxDisplayLimit);
+  n_pages = Math.ceil(itemCount / maxDisplayLimit);
   for (var i = 0; i < itemCount; i++) {
     var item = {
-	name:     'name Row ' + (i+1) + ', Column 1',
-	type:     'type Row ' + (i+1) + ', Column 2',
-	category: 'category Row ' + (i+1) + ', Column 3'
+	name:     'Row ' + (i+1) + ', Column 1',
+	type:     'Row ' + (i+1) + ', Column 2',
+	category: 'Row ' + (i+1) + ', Column 3'
     };
     list.push(item);
   }
@@ -37,7 +37,7 @@ function generateCountMessage() {
       msg = 'Showing ' + filteredList.length + ' items';
       break;
     default:
-      msg = 'Showing ' + maxDisplayLimit + ' of ' + matches + ' items';
+      msg = 'Showing ' + matches + ' items';
   }
   countMessage.textContent = msg;
 }
@@ -70,14 +70,14 @@ function generatePagination() {
     }
     for(var i = page-3; i<page; i++) {
 	if (i >= 1) {
-	    before = before + i + ' ';
+	    before = before + pageLink(i, i) + ' ';
 	}
     }
     here = '<span style="font-weight: bold">' + page + '</span>';
 
     for(var i = page+1 ; i<=page+3; i++) {
 	if (i <=  n_pages) {
-	    after = after + ' ' + i;
+	    after = after + ' ' + pageLink(i, i);
 	}
     }
     if (page < n_pages) {
@@ -113,8 +113,6 @@ function generateList(thisPage) {
   var frag = document.createDocumentFragment();
   var pageLen = filteredList.length;
     page = thisPage;
-  alert('thisPage=' + thisPage + ', pageLen=' + pageLen
-	  + ', initial i=' + (page - 1)*maxDisplayLimit)
   for (var i = (page - 1)*maxDisplayLimit; i < pageLen; i++) {
     if (i < page*maxDisplayLimit) {
 	var item = filteredList[i],
@@ -137,6 +135,10 @@ function textMatch(item) {
 
 function getFilteredItems() {
   filteredList = list.filter(textMatch);
+    n_pages = Math.ceil(filteredList.length / maxDisplayLimit);
+  if (page > n_pages) {
+      page = n_pages;
+  }
   generateList(page);
 }
 
