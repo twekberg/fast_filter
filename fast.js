@@ -15,9 +15,9 @@ function generateDummyList(itemCount) {
     n_pages = Math.ceil(itemCount / maxDisplayLimit);
   for (var i = 0; i < itemCount; i++) {
     var item = {
-      name: Math.random().toString(36).substr(2, 10),
-      type: Math.random().toString(36).substr(2, 10),
-      category: Math.random().toString(36).substr(2, 10)
+	name:     'name Row ' + (i+1) + ', Column 1',
+	type:     'type Row ' + (i+1) + ', Column 2',
+	category: 'category Row ' + (i+1) + ', Column 3'
     };
     list.push(item);
   }
@@ -111,10 +111,13 @@ function generateListItem(item) {
 
 function generateList(thisPage) {
   var frag = document.createDocumentFragment();
-  page = thisPage
-  for (var i = 0; i < filteredList.length; i++) {
-    if (i < maxDisplayLimit) {
-      var item = filteredList[i + thisPage - 1],
+  var pageLen = filteredList.length;
+    page = thisPage;
+  alert('thisPage=' + thisPage + ', pageLen=' + pageLen
+	  + ', initial i=' + (page - 1)*maxDisplayLimit)
+  for (var i = (page - 1)*maxDisplayLimit; i < pageLen; i++) {
+    if (i < page*maxDisplayLimit) {
+	var item = filteredList[i],
           li = generateListItem(item);
       frag.appendChild(li);
     }

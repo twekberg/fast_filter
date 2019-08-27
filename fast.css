@@ -9,7 +9,7 @@ body {
   border:solid 1px #ccc;
   margin:2em;
   padding:1em;
-  width:500px;
+  width:1000px;
 }
 .container .text-filter {
     border:solid 1px #ccc;
@@ -35,7 +35,7 @@ body {
 .container ul li span {
         display:inline-block;
         text-transform:uppercase;
-        width:10em;
+        width:19em;
 }
 .container .count-message {
     color:#999;
