@@ -8,7 +8,8 @@ var list = [],
     textInput = document.querySelector('.text-filter'),
     displayList = document.querySelector('.list'),
     countMessage = document.querySelector('.count-message'),
-    pagination = document.querySelector('.pagination');
+    pagination = document.querySelector('.pagination'),
+    inputPageNumber = document.querySelector('.input-page-number');
 
 function generateDummyList(itemCount) {
   if (!itemCount) return;
@@ -112,7 +113,10 @@ function generateListItem(item) {
 function generateList(thisPage) {
   var frag = document.createDocumentFragment();
   var pageLen = filteredList.length;
-    page = thisPage;
+  if (thisPage > n_pages) {
+      thisPage = n_pages;
+  }
+  page = thisPage;
   for (var i = (page - 1)*maxDisplayLimit; i < pageLen; i++) {
     if (i < page*maxDisplayLimit) {
 	var item = filteredList[i],
@@ -143,6 +147,7 @@ function getFilteredItems() {
 }
 
 textInput.addEventListener('keyup', getFilteredItems);
+inputPageNumber.addEventListener('keyup', function x(){generateList(this.value)});
 
 generateDummyList(100000);
 getFilteredItems();
