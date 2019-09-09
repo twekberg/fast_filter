@@ -1,30 +1,21 @@
 console.clear();
 
+// See the end of the file for an example use of this code.
+
 var list = [],
     filteredList = [],
-    maxDisplayLimit = 10,
+    textInput       = document.querySelector('.text-filter'),
+    displayList     = document.querySelector('.list'),
+    countMessage    = document.querySelector('.count-message'),
+    pagination      = document.querySelector('.pagination'),
+    inputPageNumber = document.querySelector('.input-page-number'),
+    columnDetail,
+    maxDisplayLimit,
     page = 1,
-    n_pages = 0,
-    textInput = document.querySelector('.text-filter'),
-    displayList = document.querySelector('.list'),
-    countMessage = document.querySelector('.count-message'),
-    pagination = document.querySelector('.pagination'),
-    inputPageNumber = document.querySelector('.input-page-number');
-
-function generateDummyList(itemCount) {
-  if (!itemCount) return;
-  n_pages = Math.ceil(itemCount / maxDisplayLimit);
-  for (var i = 0; i < itemCount; i++) {
-    var item = {
-	name:     'Row ' + (i+1) + ', Column 1',
-	type:     'Row ' + (i+1) + ', Column 2',
-	category: 'Row ' + (i+1) + ', Column 3'
-    };
-    list.push(item);
-  }
-}
+    n_pages = 0;
 
 function generateCountMessage() {
+  // Display a message saying how many items matched.
   var msg = '',
       matches = filteredList.length;
   switch (true) {
@@ -44,13 +35,17 @@ function generateCountMessage() {
 }
   
 function pageLink(page, display) {
+    // Return the HTML code for a link going to a particular page.
     // page - the page the user will go do
     // display - the displayed part of the link
-    return '<a href="#" onclick="generateList(' + page + ');  return false;">' + display + '</a>';
+    // Turn off the link decoration (underscore).
+    return '<a href="#" style="text-decoration: none;" onclick="generateList(' + page + ');  return false;">' + display + '</a>';
+
 }
 
 function generatePagination() {
-    // Pagination is composed of 3 parts:
+    // Generate and display google-style pagination. Pages are numbered starting with 1
+    // Pagination has  elements.
     //   before - the < and << icons if they make sense, and numbers prior to the current page.
     //   here - the current page number in bold.
     //   after - page numbers after the current page and the >> and > icons if they make sense.
@@ -94,60 +89,95 @@ function generatePagination() {
 
 
 function generateListItem(item) {
-    var li = document.createElement('li'),
-          spanName = document.createElement('span'),
-          spanType = document.createElement('span'),
-          spanCategory = document.createElement('span');
-      spanName.classList.add('name');
-      spanType.classList.add('type');
-      spanCategory.classList.add('category');
-      spanName.textContent = item.name;
-      spanType.textContent = item.type;
-      spanCategory.textContent = item.category;
-      li.appendChild(spanName);
-      li.appendChild(spanType);
-      li.appendChild(spanCategory); 
+    // Put a row into an HTML list item.
+    // item - an array of values for a row.
+    var li = document.createElement('li');
+    for (j=0; j<columnDetail.length; j++) {
+	var a_span = document.createElement('span');
+	a_span.classList.add(columnDetail[j]);
+	a_span.textContent = item[j];
+	li.appendChild(a_span);
+    }
   return li;
 }
 
 function generateList(thisPage) {
+  // Generate and display the rows that match the filter.
   var frag = document.createDocumentFragment();
   var pageLen = filteredList.length;
   if (thisPage > n_pages) {
       thisPage = n_pages;
   }
-  page = thisPage;
-  for (var i = (page - 1)*maxDisplayLimit; i < pageLen; i++) {
-    if (i < page*maxDisplayLimit) {
-	var item = filteredList[i],
-          li = generateListItem(item);
-      frag.appendChild(li);
-    }
-    else break;
+  if (thisPage == 0 && filteredList.length > 0) {
+      // Now we have pages, previously we did not.
+      thisPage = 1;
   }
-  displayList.innerHTML = '';
-  displayList.appendChild(frag);
+  page = thisPage;
+  if ( filteredList.length > 0) {
+      for (var i = (page - 1)*maxDisplayLimit; i < pageLen; i++) {
+	if (i < page*maxDisplayLimit && i < filteredList.length) {
+	    var item = filteredList[i];
+	    li = generateListItem(item);
+	    frag.appendChild(li);
+	}
+	else break;
+      }
+      displayList.innerHTML = '';
+      displayList.appendChild(frag);
+  } else {
+      displayList.innerHTML = '';
+  }
   generateCountMessage();
   generatePagination();
 }
 
 function textMatch(item) {
+  // the 'match' function for an item.
   var searchTerm = textInput.value.toLowerCase(),
-      itemText = (item.name + item.type + item.category).toLowerCase();
+      itemText = item.join(' ').toLowerCase();
   return itemText.indexOf(searchTerm) !== -1;
 }
 
 function getFilteredItems() {
   filteredList = list.filter(textMatch);
-    n_pages = Math.ceil(filteredList.length / maxDisplayLimit);
+  n_pages = Math.ceil(filteredList.length / maxDisplayLimit);
   if (page > n_pages) {
       page = n_pages;
   }
   generateList(page);
 }
 
-textInput.addEventListener('keyup', getFilteredItems);
-inputPageNumber.addEventListener('keyup', function x(){generateList(this.value)});
+function initialize(columns, maxRows, listInitFun) {
+    // Perform initialization.
+    // columns - array of names for the columns.
+    // maxRows - maximum number of rows to display.
+    // listInitFun - function to initialize the list variable.
+    columnDetail = columns;
+    maxDisplayLimit = maxRows;
 
-generateDummyList(100000);
-getFilteredItems();
+    textInput.addEventListener('keyup', getFilteredItems);
+    inputPageNumber.addEventListener('keyup', function x(){generateList(this.value)});
+
+    listInitFun(list);
+    getFilteredItems();
+}
+
+// -------------------------------------------------------------------------
+
+// The following items may change.
+function initializeList(theList) {
+  // Initialize the entire list with this function.
+  var itemCount = 100000;
+  n_pages = Math.ceil(itemCount / maxDisplayLimit);
+  for (var i = 0; i < itemCount; i++) {
+      // Each row is an array of values.
+      var item = new Array(columnDetail.length);
+      for (var j = 0; j<columnDetail.length; j++) {
+	  item[j] = 'Row ' + (i+1) + ', Column ' + (j+1);
+      }
+      theList.push(item);
+  }
+}
+
+initialize(['name', 'type', 'category'], 10, initializeList)
+
